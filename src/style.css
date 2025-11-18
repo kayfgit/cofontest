@@ -1,0 +1,206 @@
+:root {
+  --bg-color: #0f172a;
+  --toolbar-bg: rgba(30, 41, 59, 0.7);
+  --text-color: #e2e8f0;
+  --accent-color: #38bdf8;
+  --border-color: #334155;
+  --input-bg: #1e293b;
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  height: 100vh;
+  overflow: hidden;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.toolbar {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  background: var(--toolbar-bg);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-color);
+  gap: 20px;
+  z-index: 10;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 1.2rem;
+  background: linear-gradient(135deg, #38bdf8, #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-right: 20px;
+  transition: transform 0.3s ease;
+  cursor: default;
+  user-select: none;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-group label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+select,
+input {
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+select:hover,
+input:hover {
+  border-color: #475569;
+  background: #273548;
+}
+
+select:focus,
+input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+}
+
+input[type="number"] {
+  width: 70px;
+}
+
+#font-select {
+  min-width: 180px;
+}
+
+#language-select {
+  min-width: 140px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.vim-toggle {
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  color: #64748b;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+  margin-left: 12px;
+}
+
+.vim-toggle:hover {
+  border-color: #475569;
+  background: #273548;
+}
+
+.vim-toggle.active {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-color: #10b981;
+  color: white;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.vim-toggle.active:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+.vim-indicator {
+  display: inline-block;
+}
+
+#editor-container {
+  flex: 1;
+  width: 100%;
+  height: calc(100vh - 60px);
+  position: relative;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Vim status bar */
+.vim-status-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: var(--toolbar-bg);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: var(--text-color);
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.vim-status-bar:not(:empty) {
+  opacity: 1;
+}
+
+#editor-container {
+  height: calc(100vh - 60px) !important;
+}
+
+body:has(.vim-status-bar:not(:empty)) #editor-container {
+  height: calc(100vh - 90px) !important;
+}
