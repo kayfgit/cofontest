@@ -190,20 +190,20 @@ const editor = monaco.editor.create(container, {
   value: codeSnippets.javascript,
   language: 'javascript',
   theme: 'vs-dark',
-  fontSize: 16,
-  lineHeight: 24,
+  fontSize: 20,
+  lineHeight: 28,
   fontWeight: '400',
   fontFamily: "'Fira Code', monospace",
   automaticLayout: true,
   minimap: {
-    enabled: true
+    enabled: false
   },
   scrollBeyondLastLine: false,
   renderWhitespace: 'selection',
   cursorBlinking: 'smooth',
   cursorSmoothCaretAnimation: 'on',
   smoothScrolling: true,
-  fontLigatures: true
+  fontLigatures: true,
 });
 
 // Get control elements
@@ -428,6 +428,7 @@ vimToggle.addEventListener('click', () => {
     vimToggle.classList.add('active');
     // Initialize Vim mode
     vimMode = initVimMode(editor, document.getElementById('vim-status-bar'));
+    editor.updateOptions({ lineNumbers: 'relative' });
     console.log('Vim mode enabled');
   } else {
     vimToggle.classList.remove('active');
@@ -436,6 +437,7 @@ vimToggle.addEventListener('click', () => {
       vimMode.dispose();
       vimMode = null;
     }
+    editor.updateOptions({ lineNumbers: 'on' });
     console.log('Vim mode disabled');
   }
 });
