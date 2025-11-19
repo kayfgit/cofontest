@@ -19,17 +19,10 @@
       <div class="logo">CoFonTest</div>
 
       <div class="control-group">
-        <label for="font-select">Font</label>
-        <select id="font-select">
-          <option value="'Fira Code', monospace">Fira Code</option>
-          <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
-          <option value="'Roboto Mono', monospace">Roboto Mono</option>
-          <option value="'Source Code Pro', monospace">Source Code Pro</option>
-          <option value="'Inconsolata', monospace">Inconsolata</option>
-          <option value="'IBM Plex Mono', monospace">IBM Plex Mono</option>
-          <option value="'Ubuntu Mono', monospace">Ubuntu Mono</option>
-          <option value="monospace">System Monospace</option>
-        </select>
+        <label for="font-button">Font</label>
+        <button id="font-button" class="font-button">
+          <span id="current-font-name">Fira Code</span>
+        </button>
       </div>
 
       <div class="control-group">
@@ -78,6 +71,16 @@
     <main id="editor-container"></main>
     <div id="vim-status-bar" class="vim-status-bar"></div>
   </div>
+
+  <!-- Font Picker Modal -->
+  <div id="font-modal" class="font-modal">
+    <div class="font-modal-overlay"></div>
+    <div class="font-modal-content">
+      <input type="text" id="font-search" class="font-search" placeholder="Search fonts" autocomplete="off">
+      <div id="font-list" class="font-list"></div>
+    </div>
+  </div>
+
   <script type="module" src="/src/main.ts"></script>
 </body>
 

@@ -207,22 +207,96 @@ const editor = monaco.editor.create(container, {
 });
 
 // Get control elements
-const fontSelect = document.getElementById('font-select') as HTMLSelectElement;
+const fontButton = document.getElementById('font-button') as HTMLButtonElement;
+const currentFontName = document.getElementById('current-font-name') as HTMLSpanElement;
+const fontModal = document.getElementById('font-modal') as HTMLDivElement;
+const fontModalOverlay = fontModal.querySelector('.font-modal-overlay') as HTMLDivElement;
+const fontSearch = document.getElementById('font-search') as HTMLInputElement;
+const fontList = document.getElementById('font-list') as HTMLDivElement;
 const fontSizeInput = document.getElementById('font-size') as HTMLInputElement;
 const lineHeightInput = document.getElementById('line-height') as HTMLInputElement;
 const fontWeightSelect = document.getElementById('font-weight') as HTMLSelectElement;
 const languageSelect = document.getElementById('language-select') as HTMLSelectElement;
 const vimToggle = document.getElementById('vim-toggle') as HTMLButtonElement;
 
+// Font definitions
+const fonts = [
+  { name: 'Fira Code', value: "'Fira Code', monospace" },
+  { name: 'JetBrains Mono', value: "'JetBrains Mono', monospace" },
+  { name: 'Roboto Mono', value: "'Roboto Mono', monospace" },
+  { name: 'Source Code Pro', value: "'Source Code Pro', monospace" },
+  { name: 'Inconsolata', value: "'Inconsolata', monospace" },
+  { name: 'IBM Plex Mono', value: "'IBM Plex Mono', monospace" },
+  { name: 'Ubuntu Mono', value: "'Ubuntu Mono', monospace" },
+  { name: 'System Monospace', value: 'monospace' }
+];
+
+let currentFont = fonts[0];
+
 // Vim mode state
 let vimModeEnabled = false;
 let vimMode: any = null;
 
-// Update font family
-fontSelect.addEventListener('change', () => {
-  editor.updateOptions({
-    fontFamily: fontSelect.value
+// Render font list
+function renderFontList(filter = '') {
+  const filteredFonts = fonts.filter(font =>
+    font.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  fontList.innerHTML = filteredFonts.map(font => `
+    <div class="font-item ${font.value === currentFont.value ? 'selected' : ''}" 
+         data-font-value="${font.value}"
+         data-font-name="${font.name}"
+         style="font-family: ${font.value}">
+      ${font.name}
+    </div>
+  `).join('');
+
+  // Add click handlers
+  fontList.querySelectorAll('.font-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const fontValue = item.getAttribute('data-font-value')!;
+      const fontName = item.getAttribute('data-font-name')!;
+      selectFont(fontValue, fontName);
+      closeModal();
+    });
   });
+}
+
+// Select font
+function selectFont(fontValue: string, fontName: string) {
+  currentFont = fonts.find(f => f.value === fontValue) || fonts[0];
+  currentFontName.textContent = fontName;
+  editor.updateOptions({
+    fontFamily: fontValue
+  });
+}
+
+// Open modal
+function openModal() {
+  fontModal.classList.add('active');
+  fontSearch.value = '';
+  renderFontList();
+  setTimeout(() => fontSearch.focus(), 100);
+}
+
+// Close modal
+function closeModal() {
+  fontModal.classList.remove('active');
+}
+
+// Event listeners
+fontButton.addEventListener('click', openModal);
+fontModalOverlay.addEventListener('click', closeModal);
+fontSearch.addEventListener('input', () => {
+  renderFontList(fontSearch.value);
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && fontModal.classList.contains('active')) {
+    closeModal();
+  }
 });
 
 // Update font size
