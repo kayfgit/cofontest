@@ -243,7 +243,6 @@ body:has(.vim-status-bar:not(:empty)) #editor-container {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
   animation: fadeIn 0.2s ease;
 }
 
@@ -251,10 +250,10 @@ body:has(.vim-status-bar:not(:empty)) #editor-container {
   position: relative;
   background: var(--input-bg);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 20px;
   width: 90%;
-  max-width: 500px;
-  max-height: 70vh;
+  max-width: 600px;
+  max-height: 40vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
@@ -324,4 +323,12 @@ body:has(.vim-status-bar:not(:empty)) #editor-container {
     opacity: 1;
     transform: scale(1) translateY(0);
   }
+}
+
+.no-fonts-message {
+  padding: 30px 20px;
+  text-align: center;
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 0.95rem;
 }

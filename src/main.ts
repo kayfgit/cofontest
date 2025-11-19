@@ -220,7 +220,13 @@ const languageSelect = document.getElementById('language-select') as HTMLSelectE
 const vimToggle = document.getElementById('vim-toggle') as HTMLButtonElement;
 
 // Font definitions
-const fonts = [
+interface Font {
+  name: string;
+  value: string;
+  category?: string;
+}
+
+const top15Fonts: Font[] = [
   { name: 'Fira Code', value: "'Fira Code', monospace" },
   { name: 'JetBrains Mono', value: "'JetBrains Mono', monospace" },
   { name: 'Roboto Mono', value: "'Roboto Mono', monospace" },
@@ -228,22 +234,79 @@ const fonts = [
   { name: 'Inconsolata', value: "'Inconsolata', monospace" },
   { name: 'IBM Plex Mono', value: "'IBM Plex Mono', monospace" },
   { name: 'Ubuntu Mono', value: "'Ubuntu Mono', monospace" },
-  { name: 'System Monospace', value: 'monospace' }
+  { name: 'Space Mono', value: "'Space Mono', monospace" },
+  { name: 'Anonymous Pro', value: "'Anonymous Pro', monospace" },
+  { name: 'PT Mono', value: "'PT Mono', monospace" },
+  { name: 'Cousine', value: "'Cousine', monospace" },
+  { name: 'Fira Mono', value: "'Fira Mono', monospace" },
+  { name: 'VT323', value: "'VT323', monospace" },
+  { name: 'Share Tech Mono', value: "'Share Tech Mono', monospace" },
+  { name: 'Oxygen Mono', value: "'Oxygen Mono', monospace" }
 ];
 
-let currentFont = fonts[0];
+let currentFont = top15Fonts[0];
 
 // Vim mode state
 let vimModeEnabled = false;
 let vimMode: any = null;
 
-// Render font list
-function renderFontList(filter = '') {
-  const filteredFonts = fonts.filter(font =>
-    font.name.toLowerCase().includes(filter.toLowerCase())
-  );
+// Google Fonts API
+const GOOGLE_FONTS_API_KEY = import.meta.env.VITE_GOOGLE_FONTS_API_KEY;
+const GOOGLE_FONTS_API_URL = 'https://www.googleapis.com/webfonts/v1/webfonts';
 
-  fontList.innerHTML = filteredFonts.map(font => `
+async function fetchFonts(query: string) {
+  if (!query) return top15Fonts;
+
+  try {
+    const response = await fetch(`${GOOGLE_FONTS_API_URL}?key=${GOOGLE_FONTS_API_KEY}&sort=popularity`);
+    const data = await response.json();
+
+    if (!data.items) return [];
+
+    const items = data.items as any[];
+    return items
+      .filter((item: any) => item.family.toLowerCase().includes(query.toLowerCase()))
+      .slice(0, 20) // Limit results
+      .map((item: any) => ({
+        name: item.family,
+        value: `'${item.family}', ${item.category || 'monospace'}`,
+        category: item.category
+      }));
+  } catch (error) {
+    console.error('Error fetching fonts:', error);
+    return [];
+  }
+}
+
+// Debounce utility
+function debounce<T extends (...args: any[]) => void>(func: T, wait: number): T {
+  let timeout: ReturnType<typeof setTimeout>;
+  return function (this: any, ...args: any[]) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  } as T;
+}
+
+// Dynamic Font Loading
+function loadFont(fontName: string) {
+  const linkId = `font-${fontName.replace(/\s+/g, '-').toLowerCase()}`;
+  if (!document.getElementById(linkId)) {
+    const link = document.createElement('link');
+    link.id = linkId;
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/\s+/g, '+')}&display=swap`;
+    document.head.appendChild(link);
+  }
+}
+
+// Render font list
+function renderFontList(fontsToRender: Font[]) {
+  if (fontsToRender.length === 0) {
+    fontList.innerHTML = '<div class="no-fonts-message">No fonts found matching your search.</div>';
+    return;
+  }
+
+  fontList.innerHTML = fontsToRender.map(font => `
     <div class="font-item ${font.value === currentFont.value ? 'selected' : ''}" 
          data-font-value="${font.value}"
          data-font-name="${font.name}"
@@ -261,11 +324,25 @@ function renderFontList(filter = '') {
       closeModal();
     });
   });
+
+  // Load fonts for preview (optional, but good for UX)
+  // Note: Loading all might be heavy, maybe just load visible ones or rely on system fonts for preview if not loaded
+  fontsToRender.forEach(font => {
+    // We can lazily load them, or just let them fallback until selected
+    // For the top 15, they are likely already loaded or we can load them.
+    // For search results, we should probably load them to preview.
+    if (!top15Fonts.find(f => f.name === font.name)) {
+      loadFont(font.name);
+    }
+  });
 }
 
 // Select font
 function selectFont(fontValue: string, fontName: string) {
-  currentFont = fonts.find(f => f.value === fontValue) || fonts[0];
+  // Ensure font is loaded
+  loadFont(fontName);
+
+  currentFont = { name: fontName, value: fontValue };
   currentFontName.textContent = fontName;
   editor.updateOptions({
     fontFamily: fontValue
@@ -276,7 +353,7 @@ function selectFont(fontValue: string, fontName: string) {
 function openModal() {
   fontModal.classList.add('active');
   fontSearch.value = '';
-  renderFontList();
+  renderFontList(top15Fonts);
   setTimeout(() => fontSearch.focus(), 100);
 }
 
@@ -288,9 +365,19 @@ function closeModal() {
 // Event listeners
 fontButton.addEventListener('click', openModal);
 fontModalOverlay.addEventListener('click', closeModal);
-fontSearch.addEventListener('input', () => {
-  renderFontList(fontSearch.value);
-});
+
+const handleSearch = debounce(async () => {
+  const query = fontSearch.value.trim();
+  if (query.length === 0) {
+    renderFontList(top15Fonts);
+    return;
+  }
+
+  const results = await fetchFonts(query);
+  renderFontList(results);
+}, 500);
+
+fontSearch.addEventListener('input', handleSearch);
 
 // Close modal on Escape key
 document.addEventListener('keydown', (e) => {
